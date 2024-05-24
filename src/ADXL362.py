@@ -111,6 +111,21 @@ class ADXL362:
         temp = self.spi_read_two(0x14)
         return temp
 
+#     def read_txyz(self):
+#         ''' Read x, y, and z data in burst mode. A burst read is required to
+#             guarantee all measurements correspond to the same sample time.
+#             Returns:
+#                 - Tuple with x, y, z, and temperature data
+#         '''
+#         t = time.time()
+#         x = self.spi_read_two(0x0E)
+#         y = self.spi_read_two(0x10)
+#         z = self.spi_read_two(0x12)
+# #        temp = self.read_temp()
+
+        
+#         return t, x, y, z
+
     def read_txyz(self):
         ''' Read x, y, and z data in burst mode. A burst read is required to
             guarantee all measurements correspond to the same sample time.
@@ -118,14 +133,12 @@ class ADXL362:
                 - Tuple with x, y, z, and temperature data
         '''
         t = time.time()
-        x = self.read_x()
-        y = self.read_y()
-        z = self.read_z()
-#        temp = self.read_temp()
+        x = self.spi_read_two(0x0E)
+        y = self.spi_read_two(0x10)
+        z = self.spi_read_two(0x12)
 
-        
         return t, x, y, z
-        
+
     def spi_read_two(self, address):
         ''' Read two sequential registers
             Arguments: 
