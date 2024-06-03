@@ -73,9 +73,13 @@ class ADXL362:
         
         # Mask measurement mode onto power control buffer
         pc_reg_new = pc_reg | 0x02
+        pc_reg_new = pc_reg_new | (0x02 << 4)
 
         # Write new power control buffer to register
         self.spi_write_reg(0x2D, pc_reg_new)
+
+        ft_reg_new = 0b00000101
+        self.spi_write_reg(0x2C, ft_reg_new)
 
         time.sleep(.01)
 
