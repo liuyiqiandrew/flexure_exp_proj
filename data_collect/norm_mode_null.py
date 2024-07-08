@@ -6,7 +6,7 @@ from ADXL362 import ADXL362
 
 
 if __name__ == "__main__":
-    CONFIG_ID = 7
+    CONFIG_ID = 9
     TAKE_NUM = 3
     AXIS = 'blue'
     accel = ADXL362()
