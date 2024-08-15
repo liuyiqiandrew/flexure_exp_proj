@@ -35,6 +35,7 @@ class pll_reader:
         self.start = None
         self.save_duration = save_duration
         self.fstream = open(save_path, 'w+')
+        self.fstream.write('time|displacement|delay\n')
         self.cur_delay_error = 0.
 
     def __del__(self):
@@ -85,13 +86,12 @@ class pll_reader:
             return False
         return True
 
-        # print(f"pll sees {n_edges} edges, error is {self.error:.3f} and phase error is {delta_delay:.3f}")
-
 
 def create_gpio_controller():
     ctl = gp.GpioAsyncController()
     ctl.configure('ftdi://ftdi:232h:1/1', frequency=SAMPLE_FREQ)
     return ctl
+
 
 def parse_data(bytes):
     arr = np.frombuffer(bytes, dtype=np.uint8)
@@ -160,7 +160,7 @@ def adjust_delay(clk):
     return error
 
 
-def main():
+def read_caliper_data(save_duration=10, output_file='caliper_output.txt'):
     os.environ['DYLD_LIBRARY_PATH'] = '/opt/homebrew/Cellar/libusb/1.0.27/lib'
 
     ctl = create_gpio_controller()
@@ -176,9 +176,9 @@ def main():
         
     time.sleep(PACKET_SEPARATION - (SPI_WINDOW*SPI_WINDOW_N) / SAMPLE_FREQ)
         
-    pll = pll_reader(ctl=ctl)
+    pll = pll_reader(ctl=ctl, save_duration=save_duration, save_path=output_file)
     pll.pll_read()
 
 
 if __name__ == '__main__':
-    main()
+    read_caliper_data()

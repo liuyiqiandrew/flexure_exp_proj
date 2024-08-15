@@ -2,6 +2,21 @@ import serial
 import time
 from datetime import datetime
 
+def parse_segment(segment:str):
+    seg_str = segment.strip()[1:]
+    wt_str = seg_str[:8]
+    wt_str_clean = ''.join(wt_str.split())
+    unit_str = seg_str[8:].strip()
+    if unit_str[-1] == 'M':
+        unit = unit_str[:-1]
+        measure_flag = 'M'
+    else:
+        unit = unit_str
+        measure_flag = 'S'
+    return f"{wt_str_clean:>7} | {unit} | {measure_flag}"
+        
+
+
 def read_scale_data(port='/dev/tty.usbserial', baudrate=9600, timeout=1, save_duration=10, output_file="scale_output.txt"):
     start_time = time.time()
     buffer = ""
@@ -10,6 +25,7 @@ def read_scale_data(port='/dev/tty.usbserial', baudrate=9600, timeout=1, save_du
         with serial.Serial(port, baudrate, timeout=timeout) as ser, open(output_file, 'w') as f:
             print(f"Connected to {port} at {baudrate} baud rate.")
             print(f"Saving data to {output_file} for {save_duration} seconds.")
+            f.write("time|weight|unit|flag\n")
             
             while True:
                 current_time = time.time()
@@ -30,11 +46,12 @@ def read_scale_data(port='/dev/tty.usbserial', baudrate=9600, timeout=1, save_du
                     if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
                         # Extract the segment
                         segment = buffer[start_idx:end_idx+2]
+                        seg_clean = parse_segment(segment=segment)
                         
                         # Add timestamp
                         timestamp = datetime.now()#.strftime('%Y-%m-%d %H:%M:%S')
                         # timestamp = time.now()
-                        output_line = f"{timestamp} | {segment.strip()[1:]}\n"
+                        output_line = f"{timestamp} | {seg_clean}\n"
                         
                         # Write to file
                         f.write(output_line)
