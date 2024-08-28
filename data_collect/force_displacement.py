@@ -6,15 +6,16 @@ from multiprocessing import Process
 import time
 
 def main():
-    save_duration = 10
-    output_dir = '../data/test/'
+    save_duration = 50
+    output_dir = '../data/buckling/'
+    annotation = '8in_332_3'
     p1 = Process(
         target=read_scale_data, 
-        kwargs={'port':'/dev/tty.usbserial-2130', 'save_duration':save_duration, 'output_file':f'{output_dir}scale_output.txt'}
+        kwargs={'port':'/dev/tty.usbserial-2130', 'save_duration':save_duration, 'output_file':f'{output_dir}scale_{annotation}.txt'}
     )
     p2 = Process(
         target=read_caliper_data,
-        kwargs={'save_duration':save_duration, 'output_file':f'{output_dir}caliper_output.txt'}
+        kwargs={'save_duration':save_duration, 'output_file':f'{output_dir}caliper_{annotation}.txt'}
     )
     p2.start()
     time.sleep(1)

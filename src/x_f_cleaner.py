@@ -67,12 +67,14 @@ def interpolate_displacement(caliper:pd.DataFrame, scale:pd.DataFrame):
 
 
 def main():
-    caliper_path = '../data/test/caliper_output.txt'
-    scale_path = "../data/test/scale_output.txt"
+    data_dir = "../data/buckling"
+    annotation = "8in_332_3"
+    caliper_path = f'{data_dir}/caliper_{annotation}.txt'
+    scale_path = f"{data_dir}/scale_{annotation}.txt"
     caliper, scale = read_data(caliper_path=caliper_path, scale_path=scale_path)
     ccaliper, cscale = clean_raw_data(caliper=caliper, scale=scale)
     x_arr, f_arr = interpolate_displacement(caliper=ccaliper, scale=cscale)
-    np.savez('../data/test/x_f.npz', displacement=x_arr, force=f_arr)
+    np.savez(f'{data_dir}/x_f_{annotation}.npz', displacement=x_arr, force=f_arr)
 
 
 if __name__ == "__main__":
