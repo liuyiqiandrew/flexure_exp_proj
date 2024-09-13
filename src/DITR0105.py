@@ -4,6 +4,9 @@ import threading
 import numpy as np
 import os
 from datetime import datetime
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 '''
 Plan of attack:
@@ -19,7 +22,7 @@ SPI_RATE = int(4e3)
 SPI_LENGTH = 24
 SPI_WINDOW = int(SPI_LENGTH / SPI_RATE * SAMPLE_FREQ)
 SPI_WINDOW_N = 12
-PACKET_SEPARATION = 150e-3
+PACKET_SEPARATION = 120e-3
 PLL_PHASE_GAIN = 0.5
 PLL_CENTER_GAIN = 0.05
 
@@ -82,7 +85,7 @@ class pll_reader:
 
         n_edges = np.sum(np.abs(np.diff(clk)))
         if n_edges != 48:
-            print("warning lost lock")
+            # print(f"warning lost lock {n_edges}")
             return False
         return True
 

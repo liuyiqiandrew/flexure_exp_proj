@@ -67,8 +67,8 @@ def interpolate_displacement(caliper:pd.DataFrame, scale:pd.DataFrame):
 
 
 def main():
-    data_dir = "../data/buckling"
-    annotation = "8in_332_3"
+    data_dir = "../data/buckling/cryo"
+    annotation = "8in_116_5"
     caliper_path = f'{data_dir}/caliper_{annotation}.txt'
     scale_path = f"{data_dir}/scale_{annotation}.txt"
     caliper, scale = read_data(caliper_path=caliper_path, scale_path=scale_path)
@@ -76,6 +76,6 @@ def main():
     x_arr, f_arr = interpolate_displacement(caliper=ccaliper, scale=cscale)
     np.savez(f'{data_dir}/x_f_{annotation}.npz', displacement=x_arr, force=f_arr)
 
-
+ 
 if __name__ == "__main__":
     main()
