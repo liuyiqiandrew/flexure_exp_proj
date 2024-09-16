@@ -8,7 +8,7 @@ import time
 def main():
     save_duration = 50
     output_dir = '../data/buckling/cryo/'
-    annotation = '8in_116_5'
+    annotation = '8in_116_6'
     p1 = Process(
         target=read_scale_data, 
         kwargs={'port':'/dev/tty.usbserial-210', 'save_duration':save_duration, 'output_file':f'{output_dir}scale_{annotation}.txt'}

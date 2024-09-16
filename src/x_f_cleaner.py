@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def read_data(caliper_path:str, scale_path:str):
+def read_data(caliper_path, scale_path):
     """ Read caliper and scale data """
     caliper = pd.read_csv(
         caliper_path, 
@@ -15,6 +15,10 @@ def read_data(caliper_path:str, scale_path:str):
         parse_dates=['time']
     )
 
+    caliper.loc[:, 'derr'] = caliper.displacement.diff().abs() / 2
+    caliper.loc[0, 'derr'] = caliper.loc[0, 'derr']
+    caliper.derr = 0.001 + caliper.derr
+
     scale = pd.read_csv(
         scale_path,
         sep='|',
@@ -26,6 +30,10 @@ def read_data(caliper_path:str, scale_path:str):
         },
         parse_dates=['time']
     )
+    scale.loc[:, 'ferr'] = scale.weight.diff().abs() / 2
+    scale.loc[0, 'ferr'] = scale.loc[1, 'ferr']
+    scale.ferr += 0.5
+    
     return caliper, scale
 
 
@@ -52,6 +60,7 @@ def interpolate_displacement(caliper:pd.DataFrame, scale:pd.DataFrame):
     Assuming slow change in displacement, the interpolation should be decently accurate.
     """
     clpr = np.zeros(scale.shape[0])
+    clpr_err = np.zeros(scale.shape[0])
     row_iter = scale.iterrows()
     for row in row_iter:
         # get index for interpolate
@@ -62,20 +71,22 @@ def interpolate_displacement(caliper:pd.DataFrame, scale:pd.DataFrame):
         dt_range = (caliper.time.iloc[cupr_ind] - caliper.time.iloc[clwr_ind]).total_seconds()
         dt = (target_time - caliper.time.iloc[clwr_ind]).total_seconds()
         dx_range = caliper.displacement.iloc[cupr_ind] - caliper.displacement.iloc[clwr_ind]
+        dx_range_err = caliper.derr.iloc[cupr_ind] + caliper.derr.iloc[clwr_ind]
         clpr[row[0]] = dt / dt_range * dx_range + caliper.displacement.iloc[clwr_ind]
-    return clpr, scale.weight.to_numpy()
+        clpr_err[row[0]] = dt / dt_range * dx_range_err
+    return clpr, clpr_err, scale.weight.to_numpy(), scale.ferr.to_numpy()
 
 
 def main():
-    data_dir = "../data/buckling/cryo"
-    annotation = "8in_116_5"
+    data_dir = "../data/buckling"
+    annotation = "8in_116_1"
     caliper_path = f'{data_dir}/caliper_{annotation}.txt'
     scale_path = f"{data_dir}/scale_{annotation}.txt"
     caliper, scale = read_data(caliper_path=caliper_path, scale_path=scale_path)
     ccaliper, cscale = clean_raw_data(caliper=caliper, scale=scale)
-    x_arr, f_arr = interpolate_displacement(caliper=ccaliper, scale=cscale)
-    np.savez(f'{data_dir}/x_f_{annotation}.npz', displacement=x_arr, force=f_arr)
+    x_arr, xerr, f_arr, ferr = interpolate_displacement(caliper=ccaliper, scale=cscale)
+    np.savez(f'{data_dir}/x_f_{annotation}.npz', displacement=x_arr, force=f_arr, derr=xerr, ferr=ferr)
 
- 
+
 if __name__ == "__main__":
     main()
