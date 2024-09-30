@@ -78,8 +78,8 @@ def interpolate_displacement(caliper:pd.DataFrame, scale:pd.DataFrame):
 
 
 def main():
-    data_dir = "../data/buckling"
-    annotation = "8in_116_1"
+    data_dir = "../data/bending_stiffness"
+    annotation = "6in_332_3"
     caliper_path = f'{data_dir}/caliper_{annotation}.txt'
     scale_path = f"{data_dir}/scale_{annotation}.txt"
     caliper, scale = read_data(caliper_path=caliper_path, scale_path=scale_path)
